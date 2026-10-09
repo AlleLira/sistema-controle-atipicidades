@@ -166,6 +166,21 @@ flowchart TD
 | `iniciar_sistema.py` | Inicialização local e abertura do navegador |
 | `.github/workflows/` | Automação de compilação do executável |
 
+
+## Documentação técnica
+
+A documentação do projeto apresenta o problema de negócio que motivou o desenvolvimento da solução, a estrutura dos dados, a arquitetura da aplicação e as regras de cálculo dos indicadores gerenciais.
+
+| Documento | Descrição |
+|---|---|
+| [01 — Contexto de Negócio e Requisitos](docs/01-contexto-negocio.md) | Problema identificado, objetivos, escopo, requisitos funcionais e regras de negócio. |
+| [02 — Modelagem de Dados](docs/02-modelagem-dados.md) | Estrutura do banco SQLite, relacionamentos, diagrama entidade-relacionamento e dicionário de dados. |
+| [03 — Arquitetura Técnica](docs/03-arquitetura.md) | Organização dos módulos, fluxo da aplicação, persistência, geração de relatórios e executável Windows. |
+| [04 — Indicadores e Regras de Cálculo](docs/04-indicadores.md) | Definição dos KPIs, fórmulas, filtros, consultas SQL e interpretação dos indicadores. |
+
+A documentação foi elaborada para demonstrar as decisões técnicas e analíticas envolvidas na transformação de uma necessidade operacional em uma solução de acompanhamento gerencial.
+
+
 ## 6. Como executar
 
 ### Pré-requisitos
