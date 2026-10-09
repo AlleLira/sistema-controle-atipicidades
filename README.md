@@ -75,6 +75,47 @@ O projeto propõe uma aplicação centralizada para estruturar essas informaçõ
 - Relatório geral de acompanhamento.
 - Filtros para seleção das informações.
 
+
+## Demonstração do sistema
+
+As imagens abaixo apresentam as principais funcionalidades da aplicação, utilizando dados fictícios exclusivamente para demonstração.
+
+### Painel inicial
+
+Visão geral das atipicidades cadastradas e acesso aos módulos do sistema.
+
+![Painel inicial do Sistema de Controle de Atipicidades](screenshots/pag_inicial.png)
+
+### Consulta de atipicidades
+
+Pesquisa e acompanhamento de registros por cliente, controle, loja, progresso, desfecho e período.
+
+![Consulta de atipicidades](screenshots/pag_consulta.png)
+
+### Indicadores de atipicidades
+
+Dashboard gerencial com indicadores de acompanhamento, taxa de finalização, pendências, tempo médio de resolução e distribuição das ocorrências.
+
+![Indicadores de atipicidades](screenshots/pag_indicadores.png)
+
+### Indicadores do Reclame Aqui
+
+Painel de análise de reclamações, respostas, resolução, satisfação e evolução mensal.
+
+![Dashboard do Reclame Aqui](screenshots/dashboard_reclame_aqui.png)
+
+### Histórico de devolutivas
+
+Registro e acompanhamento de retornos relacionados às ocorrências.
+
+![Histórico de devolutivas](screenshots/devolutivas.png)
+
+### Central de Relatórios
+
+Seleção de relatórios e aplicação de filtros para geração de documentos PDF.
+
+![Central de Relatórios](screenshots/central_relatorios.png)
+
 ## 4. Tecnologias utilizadas
 
 | Tecnologia | Aplicação no projeto |
