@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Nova Atipicidade | Controle de Atipicidades</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<main class="container cadastro-container">
+
+    <!-- VOLTAR AO PAINEL -->
+    <a class="voltar" href="{{ url_for('inicio') }}">
+        ← Voltar ao painel
+    </a>
+
+    <!-- CABEÇALHO -->
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">CADASTRO DE OCORRÊNCIAS</span>
+
+            <h1>Nova Atipicidade</h1>
+
+            <p>
+                Registre as informações do cliente,
+                acompanhe a ocorrência e documente
+                as decisões tomadas.
+            </p>
+        </div>
+
+        <div class="icone-header">＋</div>
+    </header>
+
+    <!-- MENSAGENS DO SISTEMA -->
+    {% with mensagens = get_flashed_messages(
+        with_categories=true
+    ) %}
+        {% for categoria, mensagem in mensagens %}
+            <div class="mensagem {{ categoria }}">
+                {{ mensagem }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- FORMULÁRIO -->
+    <form method="POST" class="formulario">
+
+        <!-- SEÇÃO 1 -->
+        <section class="secao-form">
+
+            <h2>1. Informações Gerais</h2>
+            <p>
+                Identificação do cliente e da ocorrência.
+            </p>
+
+            <div class="campos-grid">
+
+                <div class="campo">
+                    <label for="data_atipicidade">
+                        Data da Atipicidade *
+                    </label>
+
+                    <input
+                        type="date"
+                        id="data_atipicidade"
+                        name="data_atipicidade"
+                        value="{{ dados.get('data_atipicidade', hoje) }}"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="call_center">
+                        Call Center
+                    </label>
+
+                    <input
+                        type="text"
+                        id="call_center"
+                        name="call_center"
+                        placeholder="Nome do responsável"
+                        value="{{ dados.get('call_center', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="controle">
+                        Controle
+                    </label>
+
+                    <input
+                        type="text"
+                        id="controle"
+                        name="controle"
+                        placeholder="Código de controle"
+                        value="{{ dados.get('controle', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="cliente">
+                        Cliente *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="cliente"
+                        name="cliente"
+                        placeholder="Nome do cliente"
+                        value="{{ dados.get('cliente', '') }}"
+                        required
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="data_compra">
+                        Data da Compra
+                    </label>
+
+                    <input
+                        type="date"
+                        id="data_compra"
+                        name="data_compra"
+                        value="{{ dados.get('data_compra', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="local">
+                        Local
+                    </label>
+
+                    <input
+                        type="text"
+                        id="local"
+                        name="local"
+                        placeholder="Loja ou unidade"
+                        value="{{ dados.get('local', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="acessorio">
+                        Acessório
+                    </label>
+
+                    <input
+                        type="text"
+                        id="acessorio"
+                        name="acessorio"
+                        placeholder="Acessório relacionado"
+                        value="{{ dados.get('acessorio', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="prazo_garantias">
+                        Prazo de Garantias
+                    </label>
+
+                    <input
+                        type="text"
+                        id="prazo_garantias"
+                        name="prazo_garantias"
+                        placeholder="Ex.: 90 dias"
+                        value="{{ dados.get('prazo_garantias', '') }}"
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- SEÇÃO 2 -->
+        <section class="secao-form">
+
+            <h2>2. Informações da Compra</h2>
+
+            <p>
+                Valores e produtos relacionados ao atendimento.
+            </p>
+
+            <div class="campo">
+
+                <label for="historico_compra">
+                    Histórico de Compra — Valor Total (R$)
+                </label>
+
+                <input
+                    type="number"
+                    id="historico_compra"
+                    name="historico_compra"
+                    min="0"
+                    step="0.01"
+                    inputmode="decimal"
+                    placeholder="Ex.: 1250.00"
+                    value="{{ dados.get('historico_compra', '') }}"
+                >
+
+                <small>
+                    Informe o valor total gasto pelo cliente.
+                    Utilize ponto para separar os centavos.
+                </small>
+
+            </div>
+
+            <div class="campo">
+
+                <label for="produtos_trocados">
+                    Produtos Trocados
+                </label>
+
+                <textarea
+                    id="produtos_trocados"
+                    name="produtos_trocados"
+                    rows="4"
+                    placeholder="Descreva os produtos envolvidos na troca, se houver..."
+                >{{ dados.get('produtos_trocados', '') }}</textarea>
+
+            </div>
+
+        </section>
+
+        <!-- SEÇÃO 3 -->
+        <section class="secao-form">
+
+            <h2>3. Descrição da Atipicidade</h2>
+
+            <p>
+                Registre o relato do cliente e o motivo
+                da ocorrência.
+            </p>
+
+            <div class="campo">
+
+                <label for="situacao">
+                    Situação — Relato da Atipicidade
+                </label>
+
+                <textarea
+                    id="situacao"
+                    name="situacao"
+                    rows="6"
+                    placeholder="Ex.: Cliente relata presença de pelos durante a aplicação do produto..."
+                >{{ dados.get('situacao', '') }}</textarea>
+
+                <small>
+                    Descreva o problema relatado pelo cliente
+                    com o máximo de clareza.
+                </small>
+
+            </div>
+
+        </section>
+
+        <!-- SEÇÃO 4 -->
+        <section class="secao-form">
+
+            <h2>4. Acompanhamento do Atendimento</h2>
+
+            <p>
+                Controle o andamento e o resultado da ocorrência.
+            </p>
+
+            <div class="campos-grid">
+
+                <div class="campo">
+
+                    <label for="progresso">
+                        Progresso *
+                    </label>
+
+                    <select
+                        id="progresso"
+                        name="progresso"
+                        required
+                    >
+
+                        {% for opcao in [
+                            'Aberta',
+                            'Aguardando loja',
+                            'Finalizado'
+                        ] %}
+
+                        <option
+                            value="{{ opcao }}"
+                            {% if dados.get('progresso', 'Aberta') == opcao %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ opcao }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="desfecho">
+                        Desfecho do Atendimento
+                    </label>
+
+                    <select
+                        id="desfecho"
+                        name="desfecho"
+                    >
+
+                        {% for valor, descricao in [
+                            ('Pendente', 'Pendente de decisão'),
+                            ('Troca', 'Troca realizada'),
+                            ('Estorno', 'Estorno realizado'),
+                            ('Negado', 'Solicitação negada')
+                        ] %}
+
+                        <option
+                            value="{{ valor }}"
+                            {% if dados.get('desfecho', 'Pendente') == valor %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ descricao }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <small>
+                        Classificação utilizada nos indicadores
+                        de trocas, estornos e negativas.
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="campo">
+
+                <label for="resolutiva_final">
+                    Resolutiva Final
+                </label>
+
+                <textarea
+                    id="resolutiva_final"
+                    name="resolutiva_final"
+                    rows="5"
+                    placeholder="Descreva a decisão final e as providências tomadas..."
+                >{{ dados.get('resolutiva_final', '') }}</textarea>
+
+            </div>
+
+        </section>
+
+        <!-- SEÇÃO 5 -->
+        <section class="secao-form">
+
+            <h2>5. Devolutiva no Grupo</h2>
+
+            <p>
+                Registre as informações compartilhadas
+                durante o acompanhamento.
+            </p>
+
+            <div class="campo">
+
+                <label for="devolutiva">
+                    Primeira Devolutiva
+                </label>
+
+                <textarea
+                    id="devolutiva"
+                    name="devolutiva"
+                    rows="5"
+                    placeholder="Ex.: Solicitado retorno da loja sobre a ocorrência..."
+                >{{ dados.get('devolutiva', '') }}</textarea>
+
+                <small>
+                    A data e a hora do registro serão
+                    armazenadas automaticamente.
+                    Novas devolutivas poderão ser adicionadas
+                    na atualização da atipicidade.
+                </small>
+
+            </div>
+
+        </section>
+
+        <!-- BOTÕES -->
+        <div class="acoes-form">
+
+            <a
+                href="{{ url_for('inicio') }}"
+                class="botao-cancelar"
+            >
+                Cancelar
+            </a>
+
+            <button
+                type="submit"
+                class="botao-salvar"
+            >
+                Salvar Atipicidade
+            </button>
+
+        </div>
+
+    </form>
+
+    <footer>
+        Sistema de Controle de Atipicidades
+        <span>Versão 0.1</span>
+    </footer>
+
+</main>
+
+</body>
+</html>

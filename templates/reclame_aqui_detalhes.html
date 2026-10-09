@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalhes da Reclamação</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='reclame_aqui.css') }}">
+</head>
+<body>
+<main class="container">
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">RECLAME AQUI</span>
+            <h1>Reclamação #{{ registro.id }}</h1>
+            <p>{{ registro.status_reclamacao }}</p>
+        </div>
+
+        <div class="acoes">
+            <a class="botao secundario"
+               href="{{ url_for('reclame_aqui.listar') }}">
+                Voltar
+            </a>
+
+            <a class="botao principal"
+               href="{{ url_for(
+                   'reclame_aqui.editar',
+                   reclamacao_id=registro.id
+               ) }}">
+                Editar reclamação
+            </a>
+
+            
+            <a
+                class="botao principal"
+                href="{{ url_for(
+                    'relatorios_pdf.pdf_reclame_aqui',
+                    reclamacao_id=registro.id
+                ) }}"
+            >
+                Gerar PDF
+            </a>
+
+        </div>
+    </header>
+
+    <section class="painel">
+        <h2>Identificação e vínculo</h2>
+
+        <div class="grade-detalhes">
+            <div>
+                <span class="rotulo">Atipicidade vinculada</span>
+                <strong>
+                    {% if registro.atipicidade_id %}
+                        <a href="{{ url_for(
+                            'detalhes_atipicidade',
+                            atipicidade_id=registro.atipicidade_id
+                        ) }}">
+                            #{{ registro.atipicidade_id }}
+                        </a>
+                    {% else %}
+                        Sem vínculo
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Cliente</span>
+                <strong>{{ registro.cliente or 'Não informado' }}</strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Loja</span>
+                <strong>{{ registro.local or 'Não informada' }}</strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Progresso da atipicidade</span>
+                <strong>
+                    {% if registro.atipicidade_id %}
+                        {{ registro.progresso or 'Não informado' }}
+                    {% else %}
+                        Não se aplica
+                    {% endif %}
+                </strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="painel">
+        <h2>Dados da reclamação</h2>
+
+        <div class="grade-detalhes">
+            <div>
+                <span class="rotulo">Data de abertura</span>
+                <strong>{{ registro.data_abertura|data_br }}</strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Status</span>
+                <strong>{{ registro.status_reclamacao }}</strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Respondida?</span>
+                <strong>
+                    {{ 'Sim' if registro.respondido else 'Não' }}
+                </strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Problema resolvido?</span>
+                <strong>
+                    {% if registro.problema_resolvido is none %}
+                        Não informado
+                    {% elif registro.problema_resolvido %}
+                        Sim
+                    {% else %}
+                        Não
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Faria negócio novamente?</span>
+                <strong>
+                    {% if registro.faria_negocio_novamente is none %}
+                        Não informado
+                    {% elif registro.faria_negocio_novamente %}
+                        Sim
+                    {% else %}
+                        Não
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div>
+                <span class="rotulo">Nota do atendimento</span>
+                <strong>
+                    {{ registro.nota_atendimento
+                       if registro.nota_atendimento is not none
+                       else 'Não informada' }}
+                </strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="painel">
+        <h2>Situação do cliente</h2>
+
+        <p class="texto-longo">
+            {{ registro.situacao_cliente or 'Não informada.' }}
+        </p>
+
+        <h2>Retorno do Call Center</h2>
+
+        <p class="texto-longo">
+            {{ registro.retorno_call_center or 'Não informado.' }}
+        </p>
+    </section>
+
+</main>
+</body>
+</html>

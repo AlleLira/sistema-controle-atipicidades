@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Atipicidade</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="container cadastro-container">
+
+    <a class="voltar"
+       href="{{ url_for('consultar_atipicidades') }}">
+        ← Voltar à consulta
+    </a>
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">
+                REGISTRO #{{ atipicidade.id }}
+            </span>
+            <h1>Detalhes da Atipicidade</h1>
+            <p>{{ atipicidade.cliente }}</p>
+        </div>
+        <div class="icone-header">▤</div>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensagem in mensagens %}
+            <div class="mensagem {{ categoria }}">
+                {{ mensagem }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+    <div class="barra-acoes">
+        <a
+            class="botao-salvar"
+            href="{{ url_for(
+                'editar_atipicidade',
+                atipicidade_id=atipicidade.id
+            ) }}"
+        >
+            ✎ Editar Atipicidade
+        </a>
+
+        <a
+            class="botao-salvar"
+            href="{{ url_for(
+                'relatorios_pdf.pdf_atipicidade',
+                atipicidade_id=atipicidade.id
+            ) }}"
+        >
+            Gerar PDF Completo
+        </a>
+    </div>
+
+
+    <section class="painel-consulta">
+        <h2>Informações Gerais</h2>
+
+        <div class="detalhes-grid">
+            <div>
+                <strong>Data da Atipicidade</strong>
+                <p>{{ atipicidade.data_atipicidade | data_br }}</p>
+            </div>
+
+            <div>
+                <strong>Call Center</strong>
+                <p>{{ atipicidade.call_center or '—' }}</p>
+            </div>
+
+            <div>
+                <strong>Controle</strong>
+                <p>{{ atipicidade.controle or '—' }}</p>
+            </div>
+
+            <div>
+                <strong>Cliente</strong>
+                <p>{{ atipicidade.cliente }}</p>
+            </div>
+
+            <div>
+                <strong>Data da Compra</strong>
+                <p>{{ atipicidade.data_compra | data_br }}</p>
+            </div>
+
+            <div>
+                <strong>Local / Loja</strong>
+                <p>{{ atipicidade.local or '—' }}</p>
+            </div>
+
+            <div>
+                <strong>Acessório</strong>
+                <p>{{ atipicidade.acessorio or '—' }}</p>
+            </div>
+
+            <div>
+                <strong>Prazo de Garantias</strong>
+                <p>{{ atipicidade.prazo_garantias or '—' }}</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="painel-consulta">
+        <h2>Compra e Situação</h2>
+
+        <div class="detalhes-grid">
+            <div>
+                <strong>Histórico de Compra</strong>
+                <p>{{ atipicidade.historico_compra | moeda }}</p>
+            </div>
+
+            <div>
+                <strong>Produtos Trocados</strong>
+                <p>{{ atipicidade.produtos_trocados or '—' }}</p>
+            </div>
+        </div>
+
+        <div class="detalhe-texto">
+            <strong>Situação — Relato da Atipicidade</strong>
+            <p>{{ atipicidade.situacao or '—' }}</p>
+        </div>
+    </section>
+
+    <section class="painel-consulta">
+        <h2>Acompanhamento e Resolução</h2>
+
+        <div class="detalhes-grid">
+            <div>
+                <strong>Progresso</strong>
+                <p>
+                    <span class="etiqueta">
+                        {{ atipicidade.progresso }}
+                    </span>
+                </p>
+            </div>
+
+            <div>
+                <strong>Desfecho</strong>
+                <p>
+                    <span class="etiqueta">
+                        {{ atipicidade.desfecho }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="detalhe-texto">
+            <strong>Resolutiva Final</strong>
+            <p>{{ atipicidade.resolutiva_final or '—' }}</p>
+        </div>
+    </section>
+
+    <section class="painel-consulta">
+        <div class="cabecalho-resultados">
+            <h2>Reclame Aqui</h2>
+            <span class="contador-resultados">
+                {{ reclamacoes|length }} reclamação(ões)
+            </span>
+        </div>
+
+        <div class="barra-acoes">
+            <a
+                class="botao-salvar"
+                href="{{ url_for(
+                    'reclame_aqui.novo',
+                    atipicidade_id=atipicidade.id
+                ) }}"
+            >
+                + Cadastrar Reclame Aqui
+            </a>
+        </div>
+
+        {% if reclamacoes %}
+            <div class="tabela-rolagem">
+                <table class="tabela-atipicidades">
+                    <thead>
+                        <tr>
+                            <th>ID Reclamação</th>
+                            <th>Data de abertura</th>
+                            <th>Status</th>
+                            <th>Respondida</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for reclamacao in reclamacoes %}
+                        <tr>
+                            <td>#{{ reclamacao.id }}</td>
+
+                            <td>
+                                {{ reclamacao.data_abertura | data_br }}
+                            </td>
+
+                            <td>
+                                <span class="etiqueta">
+                                    {{ reclamacao.status_reclamacao }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ 'Sim' if reclamacao.respondido else 'Não' }}
+                            </td>
+
+                            <td>
+                                <a
+                                    class="link-detalhes"
+                                    href="{{ url_for(
+                                        'reclame_aqui.detalhes',
+                                        reclamacao_id=reclamacao.id
+                                    ) }}"
+                                >
+                                    Visualizar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="texto-secundario">
+                Nenhuma reclamação vinculada a esta atipicidade.
+            </p>
+        {% endif %}
+    </section>
+
+    <section class="painel-consulta">
+        <h2>Devolutivas no Grupo</h2>
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'adicionar_devolutiva',
+                atipicidade_id=atipicidade.id
+            ) }}"
+            class="form-nova-devolutiva"
+        >
+            <div class="campo">
+                <label for="nova_devolutiva">
+                    Registrar nova devolutiva
+                </label>
+
+                <textarea
+                    id="nova_devolutiva"
+                    name="texto"
+                    rows="4"
+                    placeholder="Descreva o novo retorno recebido..."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="acoes-form">
+                <button type="submit" class="botao-salvar">
+                    + Adicionar Devolutiva
+                </button>
+            </div>
+        </form>
+
+        <h3 class="subtitulo-bloco">
+            Histórico de Devolutivas
+        </h3>
+
+        {% for devolutiva in devolutivas %}
+            <div class="item-devolutiva">
+                <small>
+                    Registro #{{ devolutiva.id }}
+                    — {{ devolutiva.criado_em | data_hora_br }} UTC
+                </small>
+
+                <p>{{ devolutiva.texto }}</p>
+
+                <details class="editar-devolutiva">
+                    <summary>Editar esta devolutiva</summary>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'editar_devolutiva',
+                            atipicidade_id=atipicidade.id,
+                            devolutiva_id=devolutiva.id
+                        ) }}"
+                    >
+                        <div class="campo">
+                            <label>Texto atualizado</label>
+
+                            <textarea
+                                name="texto"
+                                rows="4"
+                                required
+                            >{{ devolutiva.texto }}</textarea>
+                        </div>
+
+                        <button
+                            class="botao-salvar"
+                            type="submit"
+                        >
+                            Salvar Correção
+                        </button>
+                    </form>
+                </details>
+            </div>
+        {% else %}
+            <p class="texto-secundario">
+                Nenhuma devolutiva registrada.
+            </p>
+        {% endfor %}
+    </section>
+
+    <section class="painel-consulta">
+        <h2>Histórico de Alterações</h2>
+
+        <p class="texto-secundario">
+            Alterações realizadas nos campos e nas devolutivas.
+            Os registros anteriores são preservados.
+        </p>
+
+        {% for alteracao in historico %}
+            <div class="registro-historico">
+
+                <div class="historico-cabecalho">
+                    <strong>
+                        {{ nomes_campos.get(
+                            alteracao.campo,
+                            alteracao.campo
+                        ) }}
+
+                        {% if alteracao.devolutiva_id %}
+                            #{{ alteracao.devolutiva_id }}
+                        {% endif %}
+                    </strong>
+
+                    <small>
+                        {{ alteracao.alterado_em | data_hora_br }} UTC
+                    </small>
+                </div>
+
+                <div class="historico-valores">
+                    <div>
+                        <span>Valor anterior</span>
+                        <p>
+                            {{ alteracao.valor_anterior or '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>Novo valor</span>
+                        <p>
+                            {{ alteracao.valor_novo or '—' }}
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        {% else %}
+            <p class="texto-secundario">
+                Nenhuma alteração registrada até o momento.
+            </p>
+        {% endfor %}
+    </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cadastro Reclame Aqui</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='reclame_aqui.css') }}">
+</head>
+<body>
+<main class="container">
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">CONTROLE DE ATIPICIDADES</span>
+            <h1>
+                {% if reclamacao_id is defined %}
+                    Editar reclamação #{{ reclamacao_id }}
+                {% else %}
+                    Nova reclamação
+                {% endif %}
+            </h1>
+            <p>Registro e acompanhamento de reclamações do Reclame Aqui</p>
+        </div>
+
+        <a class="botao secundario"
+           href="{{ url_for('reclame_aqui.listar') }}">
+            Voltar
+        </a>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensagem in mensagens %}
+            <div class="mensagem {{ categoria }}">
+                {{ mensagem }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST" class="painel">
+
+        <h2>Identificação da reclamação</h2>
+
+        <p class="ajuda">
+            O vínculo com uma atipicidade é opcional.
+            Cliente e loja podem ser informados posteriormente.
+        </p>
+
+        <div class="grade">
+            <div class="campo">
+                <label for="atipicidade_id">
+                    ID da atipicidade
+                </label>
+                <input
+                    id="atipicidade_id"
+                    name="atipicidade_id"
+                    type="number"
+                    min="1"
+                    value="{{ dados.atipicidade_id }}"
+                    placeholder="Opcional"
+                >
+                <small>
+                    Preencha somente se existir uma atipicidade vinculada.
+                </small>
+            </div>
+
+            <div class="campo">
+                <label for="data_abertura">
+                    Data de abertura no Reclame Aqui *
+                </label>
+                <input
+                    id="data_abertura"
+                    name="data_abertura"
+                    type="date"
+                    required
+                    value="{{ dados.data_abertura }}"
+                >
+            </div>
+
+            <div class="campo">
+                <label for="cliente">
+                    Cliente
+                </label>
+                <input
+                    id="cliente"
+                    name="cliente"
+                    type="text"
+                    value="{{ dados.cliente }}"
+                    placeholder="Nome do cliente, se conhecido"
+                >
+            </div>
+
+            <div class="campo">
+                <label for="local">
+                    Loja
+                </label>
+                <input
+                    id="local"
+                    name="local"
+                    type="text"
+                    value="{{ dados.local }}"
+                    placeholder="Loja relacionada, se conhecida"
+                >
+            </div>
+        </div>
+
+        <h2>Informações da reclamação</h2>
+
+        <div class="grade">
+            <div class="campo largura-total">
+                <label for="situacao_cliente">
+                    Situação do cliente
+                </label>
+                <textarea
+                    id="situacao_cliente"
+                    name="situacao_cliente"
+                    rows="4"
+                    placeholder="Descreva a situação relatada pelo cliente"
+                >{{ dados.situacao_cliente }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label for="respondido">
+                    A reclamação foi respondida? *
+                </label>
+                <select
+                    id="respondido"
+                    name="respondido"
+                    required
+                >
+                    <option value="">Selecione</option>
+                    <option
+                        value="1"
+                        {% if dados.respondido == '1' %}
+                            selected
+                        {% endif %}
+                    >
+                        Sim
+                    </option>
+                    <option
+                        value="0"
+                        {% if dados.respondido == '0' %}
+                            selected
+                        {% endif %}
+                    >
+                        Não
+                    </option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="status_reclamacao">
+                    Status no Reclame Aqui *
+                </label>
+                <select
+                    id="status_reclamacao"
+                    name="status_reclamacao"
+                    required
+                >
+                    {% for opcao in status_opcoes %}
+                        <option
+                            value="{{ opcao }}"
+                            {% if dados.status_reclamacao == opcao %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ opcao }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="campo largura-total">
+                <label for="retorno_call_center">
+                    Retorno do Call Center
+                </label>
+                <textarea
+                    id="retorno_call_center"
+                    name="retorno_call_center"
+                    rows="4"
+                    placeholder="Descreva o retorno dado ao consumidor"
+                >{{ dados.retorno_call_center }}</textarea>
+            </div>
+        </div>
+
+        <h2>Avaliação do consumidor</h2>
+
+        <p class="ajuda">
+            Se o cliente ainda não avaliou a reclamação,
+            deixe as respostas em branco.
+        </p>
+
+        <div class="grade">
+            <div class="campo">
+                <label for="problema_resolvido">
+                    Problema resolvido?
+                </label>
+                <select
+                    id="problema_resolvido"
+                    name="problema_resolvido"
+                >
+                    <option value="">Não informado</option>
+                    <option
+                        value="1"
+                        {% if dados.problema_resolvido == '1' %}
+                            selected
+                        {% endif %}
+                    >
+                        Sim
+                    </option>
+                    <option
+                        value="0"
+                        {% if dados.problema_resolvido == '0' %}
+                            selected
+                        {% endif %}
+                    >
+                        Não
+                    </option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="faria_negocio_novamente">
+                    Faria negócio novamente?
+                </label>
+                <select
+                    id="faria_negocio_novamente"
+                    name="faria_negocio_novamente"
+                >
+                    <option value="">Não informado</option>
+                    <option
+                        value="1"
+                        {% if dados.faria_negocio_novamente == '1' %}
+                            selected
+                        {% endif %}
+                    >
+                        Sim
+                    </option>
+                    <option
+                        value="0"
+                        {% if dados.faria_negocio_novamente == '0' %}
+                            selected
+                        {% endif %}
+                    >
+                        Não
+                    </option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="nota_atendimento">
+                    Nota do atendimento (0 a 10)
+                </label>
+                <input
+                    id="nota_atendimento"
+                    name="nota_atendimento"
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="1"
+                    value="{{ dados.nota_atendimento }}"
+                >
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button class="botao principal" type="submit">
+                {% if reclamacao_id is defined %}
+                    Salvar alterações
+                {% else %}
+                    Cadastrar reclamação
+                {% endif %}
+            </button>
+
+            <a class="botao secundario"
+               href="{{ url_for('reclame_aqui.listar') }}">
+                Cancelar
+            </a>
+        </div>
+
+    </form>
+
+</main>
+</body>
+</html>

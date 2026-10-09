@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dados locais e informações de clientes
+data/
+*.db
+*.sqlite
+*.sqlite3

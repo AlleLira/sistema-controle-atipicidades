@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Atipicidades</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="container">
+
+    <a class="voltar" href="{{ url_for('inicio') }}">
+        ← Voltar ao painel
+    </a>
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">CONSULTA DE REGISTROS</span>
+            <h1>Consultar Atipicidades</h1>
+            <p>Pesquise e acompanhe as ocorrências cadastradas.</p>
+        </div>
+        <div class="icone-header">⌕</div>
+    </header>
+
+    <section class="painel-consulta">
+        <h2>Filtros de pesquisa</h2>
+
+        <form method="GET"
+              action="{{ url_for('consultar_atipicidades') }}">
+
+            <div class="campos-grid">
+
+                <div class="campo">
+                    <label for="cliente">Cliente</label>
+                    <input
+                        type="text"
+                        id="cliente"
+                        name="cliente"
+                        placeholder="Nome ou parte do nome"
+                        value="{{ request.args.get('cliente', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="controle">Controle</label>
+                    <input
+                        type="text"
+                        id="controle"
+                        name="controle"
+                        placeholder="Código de controle"
+                        value="{{ request.args.get('controle', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="local">Local / Loja</label>
+                    <input
+                        type="text"
+                        id="local"
+                        name="local"
+                        placeholder="Nome da loja"
+                        value="{{ request.args.get('local', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="progresso">Progresso</label>
+                    <select id="progresso" name="progresso">
+                        <option value="">Todos</option>
+                        {% for opcao in [
+                            'Aberta',
+                            'Aguardando loja',
+                            'Finalizado'
+                        ] %}
+                        <option
+                            value="{{ opcao }}"
+                            {% if request.args.get('progresso') == opcao %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ opcao }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="desfecho">Desfecho</label>
+                    <select id="desfecho" name="desfecho">
+                        <option value="">Todos</option>
+                        {% for opcao in [
+                            'Pendente',
+                            'Troca',
+                            'Estorno',
+                            'Negado'
+                        ] %}
+                        <option
+                            value="{{ opcao }}"
+                            {% if request.args.get('desfecho') == opcao %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ opcao }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="data_inicio">Data inicial</label>
+                    <input
+                        type="date"
+                        id="data_inicio"
+                        name="data_inicio"
+                        value="{{ request.args.get('data_inicio', '') }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="data_fim">Data final</label>
+                    <input
+                        type="date"
+                        id="data_fim"
+                        name="data_fim"
+                        value="{{ request.args.get('data_fim', '') }}"
+                    >
+                </div>
+
+            </div>
+
+            <div class="acoes-form">
+                <a
+                    class="botao-cancelar"
+                    href="{{ url_for('consultar_atipicidades') }}"
+                >
+                    Limpar filtros
+                </a>
+
+                <button class="botao-salvar" type="submit">
+                    Pesquisar
+                </button>
+            </div>
+
+        </form>
+    </section>
+
+    <section class="painel-consulta">
+        <div class="cabecalho-resultados">
+            <h2>Resultados encontrados</h2>
+            <span class="contador-resultados">
+                {{ registros|length }} registro(s)
+            </span>
+        </div>
+
+        <div class="tabela-rolagem">
+            <table class="tabela-atipicidades">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Cliente</th>
+                        <th>Controle</th>
+                        <th>Local</th>
+                        <th>Progresso</th>
+                        <th>Desfecho</th>
+                        <th>Reclame Aqui</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for registro in registros %}
+                    <tr>
+                        <td>#{{ registro.id }}</td>
+
+                        <td>
+                            {{ registro.data_atipicidade | data_br }}
+                        </td>
+
+                        <td>{{ registro.cliente }}</td>
+                        <td>{{ registro.controle or '—' }}</td>
+                        <td>{{ registro.local or '—' }}</td>
+
+                        <td>
+                            <span class="etiqueta">
+                                {{ registro.progresso }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="etiqueta">
+                                {{ registro.desfecho }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if registro.total_reclamacoes > 0 %}
+                                <a
+                                    class="link-detalhes"
+                                    href="{{ url_for(
+                                        'detalhes_atipicidade',
+                                        atipicidade_id=registro.id
+                                    ) }}"
+                                    style="
+                                        display: inline-block;
+                                        padding: 7px 11px;
+                                        border-radius: 20px;
+                                        background: #eee8f8;
+                                        color: #60449d;
+                                        text-decoration: none;
+                                        font-weight: 700;
+                                        white-space: nowrap;
+                                    "
+                                >
+                                    Reclame Aqui
+                                    ({{ registro.total_reclamacoes }})
+                                </a>
+                            {% else %}
+                                <span class="texto-secundario">
+                                    —
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a
+                                class="link-detalhes"
+                                href="{{ url_for(
+                                    'detalhes_atipicidade',
+                                    atipicidade_id=registro.id
+                                ) }}"
+                            >
+                                Visualizar
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="sem-registros">
+                            Nenhuma atipicidade encontrada.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

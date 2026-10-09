@@ -1,0 +1,738 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Indicadores | Controle de Atipicidades
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='indicadores.css') }}"
+    >
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
+        defer
+    ></script>
+</head>
+
+<body>
+
+<main class="dashboard">
+
+
+
+    <header class="topo">
+
+        <div>
+            <div class="subtitulo">
+                BUSINESS INTELLIGENCE
+                • CONTROLE DE ATIPICIDADES
+            </div>
+
+            <h1>
+                Indicadores de Atipicidades
+            </h1>
+
+            <p>
+                Acompanhamento gerencial dos atendimentos
+            </p>
+        </div>
+
+        <a
+            class="voltar"
+            href="{{ url_for('inicio') }}"
+        >
+            ← Voltar ao início
+        </a>
+
+    </header>
+
+
+
+    <form
+        class="filtros"
+        method="GET"
+        action="{{ url_for('indicadores') }}"
+    >
+
+        <h2>Filtros do Painel</h2>
+
+        <div class="filtro-grid">
+
+            <!-- LOJAS -->
+
+            <div class="campo campo-lojas">
+
+                <label>
+                    Selecionar lojas
+                </label>
+
+                <input
+                    type="hidden"
+                    name="lojas_enviadas"
+                    value="1"
+                >
+
+                <div class="acoes-lojas">
+
+                    <button
+                        type="button"
+                        onclick="marcarLojas(true)"
+                    >
+                        Selecionar todas
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="marcarLojas(false)"
+                    >
+                        Limpar seleção
+                    </button>
+
+                </div>
+
+                <div class="lojas-lista">
+
+                    {% for loja in lojas_disponiveis %}
+
+                    <label class="loja-item">
+
+                        <input
+                            type="checkbox"
+                            name="lojas"
+                            value="{{ loja }}"
+                            {% if loja in lojas_selecionadas %}
+                            checked
+                            {% endif %}
+                        >
+
+                        <span>{{ loja }}</span>
+
+                    </label>
+
+                    {% else %}
+
+                    <span class="vazio">
+                        Nenhuma loja cadastrada.
+                    </span>
+
+                    {% endfor %}
+
+                </div>
+
+                <small>
+                    Você pode selecionar várias lojas.
+                    Sem nenhuma selecionada, o resultado
+                    será vazio.
+                </small>
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="data_inicio">
+                    Data inicial
+                </label>
+
+                <input
+                    type="date"
+                    id="data_inicio"
+                    name="data_inicio"
+                    value="{{ data_inicio }}"
+                >
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="data_fim">
+                    Data final
+                </label>
+
+                <input
+                    type="date"
+                    id="data_fim"
+                    name="data_fim"
+                    value="{{ data_fim }}"
+                >
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="progresso">
+                    Progresso
+                </label>
+
+                <select
+                    id="progresso"
+                    name="progresso"
+                >
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    {% for opcao in [
+                        'Aberta',
+                        'Aguardando loja',
+                        'Finalizado'
+                    ] %}
+
+                    <option
+                        value="{{ opcao }}"
+                        {% if progresso_filtro == opcao %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ opcao }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+
+            <div class="campo">
+
+                <label for="desfecho">
+                    Desfecho
+                </label>
+
+                <select
+                    id="desfecho"
+                    name="desfecho"
+                >
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    {% for opcao in [
+                        'Pendente',
+                        'Troca',
+                        'Estorno',
+                        'Negado'
+                    ] %}
+
+                    <option
+                        value="{{ opcao }}"
+                        {% if desfecho_filtro == opcao %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ opcao }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="acoes">
+
+            <button
+                type="submit"
+                class="aplicar"
+            >
+                Aplicar filtros
+            </button>
+
+            <a
+                class="limpar"
+                href="{{ url_for('indicadores') }}"
+            >
+                Limpar todos os filtros
+            </a>
+
+        </div>
+
+    </form>
+
+
+
+    <section class="kpis">
+
+        <article class="kpi">
+
+            <span>
+                Total de Atipicidades
+            </span>
+
+            <strong>{{ total }}</strong>
+
+        </article>
+
+
+        <article class="kpi">
+
+            <span>
+                Em Aberto
+            </span>
+
+            <strong>{{ abertas }}</strong>
+
+        </article>
+
+
+        <article class="kpi">
+
+            <span>
+                Aguardando Loja
+            </span>
+
+            <strong>{{ aguardando }}</strong>
+
+        </article>
+
+
+        <article class="kpi">
+
+            <span>
+                Finalizadas
+            </span>
+
+            <strong>{{ finalizadas }}</strong>
+
+        </article>
+
+
+        <article class="kpi">
+
+            <span>
+                Taxa de Finalização
+            </span>
+
+            <strong>
+                {{
+                    '%.1f'|format(taxa_finalizacao)
+                    |replace('.', ',')
+                }}%
+            </strong>
+
+        </article>
+
+
+        <article class="kpi alerta">
+
+            <span>
+                Em Atraso (+3 dias)
+            </span>
+
+            <strong>{{ atrasadas }}</strong>
+
+        </article>
+
+
+        <article class="kpi">
+
+            <span>
+                Tempo Médio de Resolução
+            </span>
+
+            <strong>
+
+                {% if media_resolucao is not none %}
+
+                {{
+                    '%.1f'|format(media_resolucao)
+                    |replace('.', ',')
+                }} dias
+
+                {% else %}
+
+                —
+
+                {% endif %}
+
+            </strong>
+
+        </article>
+
+    </section>
+
+
+
+    <h2 class="secao-titulo">
+        Desfechos dos Atendimentos Finalizados
+    </h2>
+
+    <section class="kpis desfechos">
+
+        {% for nome in [
+            'Troca',
+            'Estorno',
+            'Negado',
+            'Pendente'
+        ] %}
+
+        <article class="kpi">
+
+            <span>
+
+                {% if nome == 'Troca' %}
+                    Trocas
+                {% elif nome == 'Estorno' %}
+                    Estornos
+                {% elif nome == 'Negado' %}
+                    Negativas
+                {% else %}
+                    Pendentes
+                {% endif %}
+
+            </span>
+
+            <strong>
+                {{ desfechos_finalizados[nome] }}
+            </strong>
+
+            <small>
+
+                {% if finalizadas %}
+
+                {{
+                    '%.1f'|format(
+                        desfechos_finalizados[nome]
+                        * 100 / finalizadas
+                    )|replace('.', ',')
+                }}% das finalizadas
+
+                {% else %}
+
+                Sem casos finalizados
+
+                {% endif %}
+
+            </small>
+
+        </article>
+
+        {% endfor %}
+
+    </section>
+
+
+    <section class="graficos">
+
+        <article class="painel">
+
+            <h2>
+                Atipicidades por Mês
+            </h2>
+
+            <div class="grafico">
+                <canvas id="graficoMeses"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="painel">
+
+            <h2>
+                Atipicidades por Loja
+            </h2>
+
+            <div class="grafico">
+                <canvas id="graficoLojas"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="painel">
+
+            <h2>
+                Distribuição por Desfecho
+            </h2>
+
+            <p class="nota">
+                Inclui todos os casos filtrados.
+            </p>
+
+            <div class="grafico">
+                <canvas id="graficoDesfechos"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="painel">
+
+            <h2>
+                Finalizações por Mês
+            </h2>
+
+            <p class="nota">
+                Mês em que os casos foram encerrados.
+            </p>
+
+            <div class="grafico">
+                <canvas id="graficoFinalizacoes"></canvas>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="painel observacoes">
+
+        <h2>
+            Como interpretar os indicadores
+        </h2>
+
+        <p>
+            <strong>Período:</strong>
+            os filtros de datas utilizam a
+            data da atipicidade.
+        </p>
+
+        <p>
+            <strong>Atraso:</strong>
+            casos não finalizados há mais de
+            3 dias corridos.
+        </p>
+
+        <p>
+            <strong>Taxa de finalização:</strong>
+            percentual de registros filtrados
+            que estão finalizados.
+        </p>
+
+        <p>
+            <strong>Tempo médio de resolução:</strong>
+            calculado a partir da data da
+            atipicidade até o encerramento.
+            Foram considerados
+            {{ casos_com_tempo }} casos
+            com datas válidas.
+        </p>
+
+        <p>
+            <strong>Dados históricos:</strong>
+            casos finalizados antes da implantação
+            do campo de encerramento podem ter
+            uma data aproximada.
+        </p>
+
+        {% if total_sem_loja > 0 %}
+
+        <p>
+            <strong>Atenção:</strong>
+            {{ total_sem_loja }} registro(s)
+            sem loja informada.
+        </p>
+
+        {% endif %}
+
+        <p>
+            <strong>Reclame Aqui:</strong>
+            os indicadores serão integrados
+            na segunda etapa do projeto.
+        </p>
+
+    </section>
+
+</main>
+
+
+
+<script>
+
+function marcarLojas(marcar) {
+
+    document.querySelectorAll(
+        'input[name="lojas"]'
+    ).forEach(function(campo) {
+
+        campo.checked = marcar;
+
+    });
+
+}
+
+
+window.addEventListener("load", function() {
+
+    if (typeof Chart === "undefined") {
+
+        document.querySelectorAll(
+            ".grafico"
+        ).forEach(function(elemento) {
+
+            elemento.innerHTML =
+                "<p>Não foi possível carregar " +
+                "a biblioteca de gráficos.</p>";
+
+        });
+
+        return;
+    }
+
+
+    const cores = [
+        "#8b72cb",
+        "#b6a3e3",
+        "#5e4a9d",
+        "#d9c9f1"
+    ];
+
+
+    function criarBarras(
+        elemento,
+        etiquetas,
+        valores,
+        horizontal = false
+    ) {
+
+        new Chart(
+            document.getElementById(elemento),
+            {
+                type: "bar",
+
+                data: {
+                    labels: etiquetas,
+
+                    datasets: [{
+                        label: "Atipicidades",
+                        data: valores,
+                        backgroundColor: "#8b72cb",
+                        borderRadius: 6
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    indexAxis: horizontal
+                        ? "y"
+                        : "x",
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+
+                    scales: horizontal
+                        ? {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                        : {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                }
+            }
+        );
+    }
+
+
+
+    criarBarras(
+        "graficoMeses",
+        {{ meses_labels|tojson }},
+        {{ meses_valores|tojson }}
+    );
+
+
+
+    criarBarras(
+        "graficoLojas",
+        {{ lojas_labels|tojson }},
+        {{ lojas_valores|tojson }},
+        true
+    );
+
+
+
+    criarBarras(
+        "graficoFinalizacoes",
+        {{ finalizacoes_labels|tojson }},
+        {{ finalizacoes_valores|tojson }}
+    );
+
+
+
+    const desfechos = [
+        {{ desfechos["Troca"] }},
+        {{ desfechos["Estorno"] }},
+        {{ desfechos["Negado"] }},
+        {{ desfechos["Pendente"] }}
+    ];
+
+
+    new Chart(
+        document.getElementById(
+            "graficoDesfechos"
+        ),
+        {
+            type: "doughnut",
+
+            data: {
+                labels: [
+                    "Troca",
+                    "Estorno",
+                    "Negado",
+                    "Pendente"
+                ],
+
+                datasets: [{
+                    data: desfechos,
+                    backgroundColor: cores
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+        }
+    );
+
+});
+
+</script>
+
+</body>
+</html>

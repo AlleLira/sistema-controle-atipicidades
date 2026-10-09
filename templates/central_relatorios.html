@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Central de Relatórios</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='central_relatorios.css') }}">
+</head>
+<body>
+    <main class="container cadastro-container">
+
+        <a class="voltar" href="{{ url_for('inicio') }}">
+            ← Voltar ao painel
+        </a>
+
+        <header class="cabecalho">
+            <div>
+                <span class="subtitulo">RELATÓRIOS GERENCIAIS</span>
+                <h1>Central de Relatórios</h1>
+                <p>Selecione o relatório, aplique os filtros e gere seu PDF.</p>
+            </div>
+            <div class="icone-header">▤</div>
+        </header>
+
+        <form
+            action="{{ url_for('central_relatorios.gerar') }}"
+            method="GET"
+            class="painel-consulta relatorios-form"
+        >
+
+            <h2>Tipo de relatório</h2>
+
+            <div class="tipos-relatorio">
+                <label class="tipo-relatorio">
+                    <input
+                        type="radio"
+                        name="tipo"
+                        value="atipicidades"
+                        checked
+                    >
+                    <span>
+                        <strong>Atipicidades</strong>
+                        <small>Casos e acompanhamento</small>
+                    </span>
+                </label>
+
+                <label class="tipo-relatorio">
+                    <input
+                        type="radio"
+                        name="tipo"
+                        value="reclame_aqui"
+                    >
+                    <span>
+                        <strong>Reclame Aqui</strong>
+                        <small>Reclamações e avaliações</small>
+                    </span>
+                </label>
+
+                <label class="tipo-relatorio">
+                    <input
+                        type="radio"
+                        name="tipo"
+                        value="geral"
+                    >
+                    <span>
+                        <strong>Relatório Geral</strong>
+                        <small>Visão integrada dos módulos</small>
+                    </span>
+                </label>
+            </div>
+
+            <h2>Filtros</h2>
+
+            <div class="filtros-relatorios">
+                <div class="campo">
+                    <label for="data_inicio">Data inicial</label>
+                    <input
+                        type="date"
+                        id="data_inicio"
+                        name="data_inicio"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="data_fim">Data final</label>
+                    <input
+                        type="date"
+                        id="data_fim"
+                        name="data_fim"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="loja">Local / Loja</label>
+                    <select id="loja" name="loja">
+                        <option value="">Todas as lojas</option>
+                        {% for loja in lojas %}
+                            <option value="{{ loja }}">
+                                {{ loja }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo filtro-atipicidade">
+                    <label for="progresso">Progresso</label>
+                    <select id="progresso" name="progresso">
+                        <option value="">Todos</option>
+                        {% for progresso in progressos %}
+                            <option value="{{ progresso }}">
+                                {{ progresso }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo filtro-atipicidade">
+                    <label for="desfecho">Desfecho</label>
+                    <select id="desfecho" name="desfecho">
+                        <option value="">Todos</option>
+                        {% for desfecho in desfechos %}
+                            <option value="{{ desfecho }}">
+                                {{ desfecho }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo filtro-reclame">
+                    <label for="status">Status da reclamação</label>
+                    <select id="status" name="status">
+                        <option value="">Todos</option>
+                        {% for status in status_opcoes %}
+                            <option value="{{ status }}">
+                                {{ status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo filtro-reclame">
+                    <label for="respondido">Respondida</label>
+                    <select id="respondido" name="respondido">
+                        <option value="">Todas</option>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+            </div>
+
+            <p class="orientacao-relatorio">
+                Deixe os filtros vazios para incluir todos os registros.
+                O histórico de alterações não será incluído.
+            </p>
+
+            <div class="acoes-relatorios">
+                <button type="reset" class="botao-limpar">
+                    Limpar filtros
+                </button>
+
+                <button type="submit" class="botao-salvar">
+                    Gerar Relatório PDF
+                </button>
+            </div>
+        </form>
+
+    </main>
+
+    <script>
+        const tipos = document.querySelectorAll('input[name="tipo"]');
+        const filtrosAtipicidade = document.querySelectorAll(".filtro-atipicidade");
+        const filtrosReclame = document.querySelectorAll(".filtro-reclame");
+        const formulario = document.querySelector(".relatorios-form");
+
+        function atualizarFiltros() {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+
+            const mostrarAtipicidade = tipo !== "reclame_aqui";
+            const mostrarReclame = tipo !== "atipicidades";
+
+            filtrosAtipicidade.forEach(campo => {
+                campo.hidden = !mostrarAtipicidade;
+                campo.querySelector("select").disabled = !mostrarAtipicidade;
+            });
+
+            filtrosReclame.forEach(campo => {
+                campo.hidden = !mostrarReclame;
+                campo.querySelector("select").disabled = !mostrarReclame;
+            });
+        }
+
+        tipos.forEach(tipo => {
+            tipo.addEventListener("change", atualizarFiltros);
+        });
+
+        formulario.addEventListener("reset", () => {
+            requestAnimationFrame(atualizarFiltros);
+        });
+
+        atualizarFiltros();
+    </script>
+</body>
+</html>

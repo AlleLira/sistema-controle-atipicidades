@@ -1,0 +1,140 @@
+
+.relatorios-form {
+    padding: 28px;
+}
+
+.relatorios-form h2 {
+    margin: 0 0 18px;
+}
+
+.tipos-relatorio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+}
+
+.tipo-relatorio {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px 16px;
+    border: 1px solid #e6ddef;
+    border-radius: 14px;
+    background: #faf8fd;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.tipo-relatorio:hover {
+    border-color: #9b7ac4;
+}
+
+.tipo-relatorio:has(input:checked) {
+    border-color: #7453a6;
+    background: #f1eafa;
+}
+
+.tipo-relatorio input {
+    accent-color: #7453a6;
+    margin-top: 4px;
+}
+
+.tipo-relatorio span {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.tipo-relatorio strong {
+    color: #49336d;
+    font-size: 15px;
+}
+
+.tipo-relatorio small {
+    color: #70677b;
+    line-height: 1.5;
+}
+
+.filtros-relatorios {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.filtros-relatorios .campo {
+    min-width: 0;
+}
+
+.filtros-relatorios .campo[hidden] {
+    display: none;
+}
+
+.filtros-relatorios input,
+.filtros-relatorios select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #ded6e9;
+    border-radius: 9px;
+    background: #fff;
+    color: #352c40;
+    font: inherit;
+}
+
+.filtros-relatorios input:focus,
+.filtros-relatorios select:focus {
+    outline: 2px solid #b59bd6;
+    outline-offset: 1px;
+}
+
+.orientacao-relatorio {
+    margin-top: 24px;
+    color: #70677b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.acoes-relatorios {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.botao-limpar {
+    padding: 12px 20px;
+    border: 1px solid #d8cbe7;
+    border-radius: 9px;
+    background: #fff;
+    color: #49336d;
+    font: inherit;
+    cursor: pointer;
+}
+
+.botao-limpar:hover {
+    background: #f1eafa;
+}
+
+@media (max-width: 760px) {
+    .tipos-relatorio {
+        grid-template-columns: 1fr;
+    }
+
+    .filtros-relatorios {
+        grid-template-columns: 1fr;
+    }
+
+    .relatorios-form {
+        padding: 18px;
+    }
+
+    .acoes-relatorios {
+        flex-direction: column;
+    }
+
+    .acoes-relatorios button {
+        width: 100%;
+    }
+}

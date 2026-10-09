@@ -1,0 +1,299 @@
+
+:root {
+    --roxo: #8064c4;
+    --roxo-escuro: #554184;
+    --lilas: #eee8f8;
+    --fundo: #f6f4fb;
+    --branco: #ffffff;
+    --texto: #3e3453;
+    --suave: #80758f;
+    --borda: #e4ddef;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--texto);
+    background: var(--fundo);
+}
+
+.container {
+    max-width: 1180px;
+    margin: auto;
+    padding: 32px 22px 60px;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.subtitulo {
+    color: var(--roxo);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+h1 {
+    margin: 8px 0;
+    font-size: 29px;
+}
+
+h2 {
+    font-size: 18px;
+    margin: 0 0 20px;
+}
+
+h2:not(:first-child) {
+    margin-top: 30px;
+}
+
+.cabecalho p,
+.ajuda {
+    color: var(--suave);
+    font-size: 14px;
+}
+
+.painel {
+    background: var(--branco);
+    padding: 26px;
+    border-radius: 17px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 18px #35245a0b;
+}
+
+.grade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.campo label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.campo small {
+    color: var(--suave);
+    font-size: 12px;
+}
+
+.largura-total {
+    grid-column: 1 / -1;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--borda);
+    border-radius: 9px;
+    background: var(--branco);
+    color: var(--texto);
+    font: inherit;
+}
+
+textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--roxo);
+    outline-offset: 1px;
+}
+
+.acoes {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.cabecalho .acoes {
+    margin-top: 0;
+}
+
+.botao {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-align: center;
+}
+
+.principal {
+    background: var(--roxo);
+    color: white;
+}
+
+.principal:hover {
+    background: var(--roxo-escuro);
+}
+
+.secundario {
+    background: var(--branco);
+    color: var(--roxo);
+    border-color: var(--borda);
+}
+
+.secundario:hover {
+    background: var(--lilas);
+}
+
+.pesquisa {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.pesquisa input {
+    flex: 1;
+}
+
+.tabela-rolagem {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th {
+    background: var(--lilas);
+    color: var(--roxo-escuro);
+    text-align: left;
+    padding: 13px;
+    white-space: nowrap;
+}
+
+td {
+    padding: 13px;
+    border-bottom: 1px solid var(--borda);
+}
+
+td a,
+.grade-detalhes a {
+    color: var(--roxo);
+    font-weight: 700;
+}
+
+tr:hover td {
+    background: #faf8fd;
+}
+
+.etiqueta {
+    display: inline-block;
+    background: var(--lilas);
+    color: var(--roxo-escuro);
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sem-registros {
+    text-align: center;
+    color: var(--suave);
+    padding: 30px;
+}
+
+.grade-detalhes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.grade-detalhes > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rotulo {
+    color: var(--suave);
+    font-size: 12px;
+}
+
+.grade-detalhes strong {
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.texto-longo {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.mensagem {
+    padding: 13px 16px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    background: var(--lilas);
+}
+
+.mensagem.erro {
+    background: #fce9ee;
+    color: #9d3753;
+}
+
+.mensagem.sucesso {
+    background: #e8f5ee;
+    color: #256b4b;
+}
+
+@media (max-width: 750px) {
+    .cabecalho {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .grade,
+    .grade-detalhes {
+        grid-template-columns: 1fr;
+    }
+
+    .largura-total {
+        grid-column: auto;
+    }
+
+    .pesquisa {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .container {
+        padding: 18px 12px 40px;
+    }
+
+    .painel {
+        padding: 18px;
+    }
+}

@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consultar Reclame Aqui</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='reclame_aqui.css') }}">
+</head>
+<body>
+<main class="container">
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">CONTROLE DE ATIPICIDADES</span>
+            <h1>Reclame Aqui</h1>
+            <p>Consulta e acompanhamento de reclamações</p>
+        </div>
+
+        <div class="acoes">
+            <a class="botao secundario"
+               href="{{ url_for('inicio') }}">
+                Início
+            </a>
+
+            <a class="botao secundario"
+               href="{{ url_for('reclame_aqui.indicadores') }}">
+                Ver Indicadores
+            </a>
+
+            <a class="botao principal"
+               href="{{ url_for('reclame_aqui.novo') }}">
+                + Nova reclamação
+            </a>
+        </div>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensagem in mensagens %}
+            <div class="mensagem {{ categoria }}">
+                {{ mensagem }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="painel">
+        <h2>Consultar reclamações</h2>
+
+        <form method="GET" class="pesquisa">
+            <input
+                type="search"
+                name="busca"
+                value="{{ busca }}"
+                placeholder="ID da reclamação, atipicidade, cliente ou loja"
+            >
+
+            <button class="botao principal" type="submit">
+                Pesquisar
+            </button>
+
+            <a class="botao secundario"
+               href="{{ url_for('reclame_aqui.listar') }}">
+                Limpar
+            </a>
+        </form>
+    </section>
+
+    <section class="painel">
+        <h2>Reclamações encontradas: {{ registros|length }}</h2>
+
+        <div class="tabela-rolagem">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID RA</th>
+                        <th>Atipicidade</th>
+                        <th>Cliente</th>
+                        <th>Loja</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Respondida</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for registro in registros %}
+                    <tr>
+                        <td>#{{ registro.id }}</td>
+
+                        <td>
+                            {% if registro.atipicidade_id %}
+                                <a href="{{ url_for(
+                                    'detalhes_atipicidade',
+                                    atipicidade_id=registro.atipicidade_id
+                                ) }}">
+                                    #{{ registro.atipicidade_id }}
+                                </a>
+                            {% else %}
+                                Sem vínculo
+                            {% endif %}
+                        </td>
+
+                        <td>{{ registro.cliente or 'Não informado' }}</td>
+                        <td>{{ registro.local or 'Não informada' }}</td>
+                        <td>{{ registro.data_abertura|data_br }}</td>
+
+                        <td>
+                            <span class="etiqueta">
+                                {{ registro.status_reclamacao }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ 'Sim' if registro.respondido else 'Não' }}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for(
+                                'reclame_aqui.detalhes',
+                                reclamacao_id=registro.id
+                            ) }}">
+                                Visualizar
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="sem-registros">
+                            Nenhuma reclamação encontrada.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

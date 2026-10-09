@@ -1,0 +1,433 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Indicadores do Reclame Aqui</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='reclame_aqui_indicadores.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+<main class="container">
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">BUSINESS INTELLIGENCE</span>
+            <h1>Indicadores do Reclame Aqui</h1>
+            <p>Acompanhamento de reclamações e satisfação dos clientes</p>
+        </div>
+
+        <div class="acoes">
+            <a class="botao secundario"
+               href="{{ url_for('reclame_aqui.listar') }}">
+                ← Reclamações
+            </a>
+
+            <a class="botao principal"
+               href="{{ url_for('inicio') }}">
+                Início
+            </a>
+        </div>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensagem in mensagens %}
+            <div class="mensagem {{ categoria }}">
+                {{ mensagem }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="painel">
+        <div class="secao-cabecalho">
+            <div>
+                <h2>Filtros de análise</h2>
+                <p>Selecione os critérios para atualizar os indicadores.</p>
+            </div>
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('reclame_aqui.indicadores') }}">
+
+            <div class="filtros-grid">
+                <div class="campo">
+                    <label for="data_inicio">Data inicial</label>
+                    <input
+                        type="date"
+                        id="data_inicio"
+                        name="data_inicio"
+                        value="{{ data_inicio }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="data_fim">Data final</label>
+                    <input
+                        type="date"
+                        id="data_fim"
+                        name="data_fim"
+                        value="{{ data_fim }}"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="loja">Loja</label>
+                    <select id="loja" name="loja">
+                        <option value="">Todas as lojas</option>
+
+                        {% for nome_loja in lojas_disponiveis %}
+                            <option
+                                value="{{ nome_loja }}"
+                                {% if loja_filtro == nome_loja %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ nome_loja }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">Todos os status</option>
+
+                        {% for opcao in status_opcoes %}
+                            <option
+                                value="{{ opcao }}"
+                                {% if status_filtro == opcao %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ opcao }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="acoes filtros-acoes">
+                <a class="botao secundario"
+                   href="{{ url_for('reclame_aqui.indicadores') }}">
+                    Limpar filtros
+                </a>
+
+                <button class="botao principal" type="submit">
+                    Aplicar filtros
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="secao-indicadores">
+        <div class="secao-cabecalho">
+            <div>
+                <h2>Visão geral</h2>
+                <p>Volume de reclamações e acompanhamento das respostas.</p>
+            </div>
+        </div>
+
+        <div class="kpis-grid">
+            <article class="kpi">
+                <div class="kpi-icone">▤</div>
+                <span>Total de reclamações</span>
+                <strong>{{ total }}</strong>
+                <small>Registros no período selecionado</small>
+            </article>
+
+            <article class="kpi">
+                <div class="kpi-icone">✓</div>
+                <span>Reclamações respondidas</span>
+                <strong>{{ respondidas }}</strong>
+                <small>
+                    {% if taxa_resposta is not none %}
+                        {{ "%.1f"|format(taxa_resposta)|replace('.', ',') }}% do total
+                    {% else %}
+                        Sem registros
+                    {% endif %}
+                </small>
+            </article>
+
+            <article class="kpi">
+                <div class="kpi-icone">◷</div>
+                <span>Aguardando resposta</span>
+                <strong>{{ pendentes_resposta }}</strong>
+                <small>Reclamações não respondidas</small>
+            </article>
+
+            <article class="kpi">
+                <div class="kpi-icone">✦</div>
+                <span>Problemas resolvidos</span>
+                <strong>{{ resolvidas }}</strong>
+                <small>
+                    {{ avaliacoes_resolucao }} reclamação(ões) com avaliação
+                </small>
+            </article>
+        </div>
+    </section>
+
+    <section class="secao-indicadores">
+        <div class="secao-cabecalho">
+            <div>
+                <h2>Resolução e satisfação</h2>
+                <p>Resultados calculados a partir das avaliações preenchidas.</p>
+            </div>
+        </div>
+
+        <div class="kpis-grid kpis-avaliacao">
+            <article class="kpi">
+                <div class="kpi-icone">%</div>
+                <span>Taxa de resolução</span>
+                <strong>
+                    {% if taxa_resolucao is not none %}
+                        {{ "%.1f"|format(taxa_resolucao)|replace('.', ',') }}%
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+                <small>
+                    {{ avaliacoes_resolucao }} resposta(s) válidas
+                </small>
+            </article>
+
+            <article class="kpi">
+                <div class="kpi-icone">★</div>
+                <span>Nota média do atendimento</span>
+                <strong>
+                    {% if nota_media is not none %}
+                        {{ "%.1f"|format(nota_media)|replace('.', ',') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+                <small>
+                    {{ quantidade_notas }} avaliação(ões) de 0 a 10
+                </small>
+            </article>
+
+            <article class="kpi">
+                <div class="kpi-icone">↻</div>
+                <span>Voltariam a fazer negócio</span>
+                <strong>
+                    {% if taxa_negocio is not none %}
+                        {{ "%.1f"|format(taxa_negocio)|replace('.', ',') }}%
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+                <small>
+                    {{ fariam_negocio }} resposta(s) positivas de
+                    {{ avaliacoes_negocio }}
+                </small>
+            </article>
+        </div>
+    </section>
+
+    <section class="secao-indicadores">
+        <div class="secao-cabecalho">
+            <div>
+                <h2>Análises gráficas</h2>
+                <p>Distribuição e evolução das reclamações cadastradas.</p>
+            </div>
+        </div>
+
+        {% if total > 0 %}
+            <div class="graficos-grid">
+                <article class="painel grafico-painel">
+                    <h3>Reclamações por status</h3>
+                    <p>Distribuição por etapa do atendimento.</p>
+                    <div class="grafico-area">
+                        <canvas id="graficoStatus"></canvas>
+                    </div>
+                </article>
+
+                <article class="painel grafico-painel">
+                    <h3>Reclamações por loja</h3>
+                    <p>Quantidade de reclamações vinculadas a cada loja.</p>
+                    <div class="grafico-area">
+                        <canvas id="graficoLojas"></canvas>
+                    </div>
+                </article>
+
+                <article class="painel grafico-painel grafico-largo">
+                    <h3>Evolução mensal de reclamações</h3>
+                    <p>Volume de novas reclamações por mês de abertura.</p>
+                    <div class="grafico-area">
+                        <canvas id="graficoMeses"></canvas>
+                    </div>
+                </article>
+            </div>
+        {% else %}
+            <div class="painel vazio">
+                <h3>Nenhuma reclamação encontrada</h3>
+                <p>
+                    Não existem registros para os filtros selecionados.
+                    Experimente alterar o período, a loja ou o status.
+                </p>
+            </div>
+        {% endif %}
+    </section>
+
+    <footer class="rodape">
+        Sistema de Controle de Atipicidades — Reclame Aqui
+    </footer>
+
+</main>
+
+{% if total > 0 %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (typeof Chart === "undefined") {
+        return;
+    }
+
+    const statusLabels = {{ status_labels | tojson }};
+    const statusValores = {{ status_valores | tojson }};
+    const lojasLabels = {{ lojas_labels | tojson }};
+    const lojasValores = {{ lojas_valores | tojson }};
+    const mesesLabels = {{ meses_labels | tojson }};
+    const mesesValores = {{ meses_valores | tojson }};
+
+    const cores = [
+        "#8b6bc5",
+        "#b49bdc",
+        "#d7c8ef",
+        "#69509d",
+        "#c7b0e5",
+        "#a58bd0",
+        "#e0d3f3",
+        "#9174be"
+    ];
+
+    Chart.defaults.color = "#6b617a";
+    Chart.defaults.font.family = "Arial, sans-serif";
+
+    const statusContexto = document.getElementById("graficoStatus");
+
+    new Chart(statusContexto, {
+        type: "doughnut",
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusValores,
+                backgroundColor: cores,
+                borderColor: "#ffffff",
+                borderWidth: 3,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "64%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        padding: 16
+                    }
+                }
+            }
+        }
+    });
+
+    const lojasContexto = document.getElementById("graficoLojas");
+
+    new Chart(lojasContexto, {
+        type: "bar",
+        data: {
+            labels: lojasLabels,
+            datasets: [{
+                label: "Reclamações",
+                data: lojasValores,
+                backgroundColor: "#a58bd0",
+                borderRadius: 7,
+                maxBarThickness: 38
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    grid: {
+                        color: "#eee9f5"
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    const mesesContexto = document.getElementById("graficoMeses");
+
+    const mesesFormatados = mesesLabels.map(function (mes) {
+        const partes = mes.split("-");
+        return partes[1] + "/" + partes[0];
+    });
+
+    new Chart(mesesContexto, {
+        type: "line",
+        data: {
+            labels: mesesFormatados,
+            datasets: [{
+                label: "Reclamações abertas",
+                data: mesesValores,
+                borderColor: "#8461bd",
+                backgroundColor: "rgba(132, 97, 189, 0.12)",
+                fill: true,
+                tension: 0.3,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: "#8461bd"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    grid: {
+                        color: "#eee9f5"
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Controle de Atipicidades</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <main class="container">
+
+        <header class="cabecalho">
+            <div>
+                <span class="subtitulo">PAINEL DE CONTROLE</span>
+                <h1>Controle de Atipicidades</h1>
+                <p>Gerencie ocorrências, acompanhe resultados
+                   e consulte informações em um só lugar.</p>
+            </div>
+            <div class="icone-header">✦</div>
+        </header>
+
+        <section class="indicadores">
+            <div class="indicador">
+                <span>Total de Atipicidades</span>
+                <strong>{{ indicadores.total }}</strong>
+                <small>Registros cadastrados</small>
+            </div>
+
+            <div class="indicador">
+                <span>Em Aberto</span>
+                <strong>{{ indicadores.abertas }}</strong>
+                <small>Aguardando acompanhamento</small>
+            </div>
+
+            <div class="indicador">
+                <span>Aguardando Loja</span>
+                <strong>{{ indicadores.aguardando_loja }}</strong>
+                <small>Pendentes de retorno</small>
+            </div>
+
+            <div class="indicador">
+                <span>Finalizadas</span>
+                <strong>{{ indicadores.finalizadas }}</strong>
+                <small>Ocorrências concluídas</small>
+            </div>
+        </section>
+
+        <div class="titulo-secao">
+            <h2>Menu principal</h2>
+            <p>Selecione o módulo que deseja acessar.</p>
+        </div>
+
+        <section class="modulos">
+
+            <a href="{{ url_for('nova_atipicidade') }}" class="modulo">
+                <div class="modulo-icone">＋</div>
+                <div>
+                    <h3>Nova Atipicidade</h3>
+                    <p>Cadastrar um novo caso</p>
+                </div>
+                <span class="seta">→</span>
+            </a>
+
+            <a href="{{ url_for('consultar_atipicidades') }}" class="modulo">
+                <div class="modulo-icone">⌕</div>
+                <div>
+                    <h3>Consultar</h3>
+                    <p>Pesquisar registros</p>
+                </div>
+                <span class="seta">→</span>
+            </a>
+
+            <a href="{{ url_for('consultar_atipicidades') }}" class="modulo">
+                <div class="modulo-icone">✎</div>
+                <div>
+                    <h3>Atualizar</h3>
+                    <p>Editar e acompanhar</p>
+                </div>
+                <span class="seta">→</span>
+            </a>
+
+            <a href="{{ url_for('central_relatorios.pagina') }}" class="modulo">
+                <div class="modulo-icone">▤</div>
+                <div>
+                    <h3>Relatórios PDF</h3>
+                    <p>Exportar informações</p>
+                </div>
+                <span class="seta">→</span>
+            </a>
+
+            <a href="{{ url_for('reclame_aqui.listar') }}" class="modulo">
+                <div class="modulo-icone">☏</div>
+                <div>
+                    <h3>Reclame Aqui</h3>
+                    <p>Cadastro e acompanhamento de reclamações</p>
+                </div>
+                <span class="seta">→</span>
+            </a>
+
+            <a href="{{ url_for('indicadores') }}" class="modulo">
+                <div class="modulo-icone">▥</div>
+                <div>
+                    <h3>Indicadores</h3>
+                    <p>Visão resumida</p>
+                </div>
+                <span class="seta">→</span>
+            </a>
+
+        </section>
+
+        <footer>
+            Sistema de Controle de Atipicidades
+            <span>Versão 0.1</span>
+        </footer>
+
+    </main>
+</body>
+</html>

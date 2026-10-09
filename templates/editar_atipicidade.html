@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Atipicidade</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="container cadastro-container">
+
+    <a class="voltar"
+       href="{{ url_for('detalhes_atipicidade',
+                        atipicidade_id=atipicidade_id) }}">
+        ← Voltar aos detalhes
+    </a>
+
+    <header class="cabecalho">
+        <div>
+            <span class="subtitulo">
+                ATUALIZAÇÃO DO REGISTRO #{{ atipicidade_id }}
+            </span>
+            <h1>Atualizar Atipicidade</h1>
+            <p>
+                Altere as informações do atendimento.
+                As modificações serão registradas no histórico.
+            </p>
+        </div>
+        <div class="icone-header">✎</div>
+    </header>
+
+    {% with mensagens = get_flashed_messages(
+        with_categories=true
+    ) %}
+        {% for categoria, mensagem in mensagens %}
+            <div class="mensagem {{ categoria }}">
+                {{ mensagem }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST" class="formulario">
+
+        <section class="secao-form">
+            <h2>1. Informações Gerais</h2>
+            <p>Identificação do cliente e da ocorrência.</p>
+
+            <div class="campos-grid">
+
+                <div class="campo">
+                    <label for="data_atipicidade">
+                        Data da Atipicidade *
+                    </label>
+                    <input type="date"
+                           id="data_atipicidade"
+                           name="data_atipicidade"
+                           value="{{ dados.get('data_atipicidade') or '' }}"
+                           required>
+                </div>
+
+                <div class="campo">
+                    <label for="call_center">Call Center</label>
+                    <input type="text" id="call_center"
+                           name="call_center"
+                           value="{{ dados.get('call_center') or '' }}">
+                </div>
+
+                <div class="campo">
+                    <label for="controle">Controle</label>
+                    <input type="text" id="controle"
+                           name="controle"
+                           value="{{ dados.get('controle') or '' }}">
+                </div>
+
+                <div class="campo">
+                    <label for="cliente">Cliente *</label>
+                    <input type="text" id="cliente"
+                           name="cliente"
+                           value="{{ dados.get('cliente') or '' }}"
+                           required>
+                </div>
+
+                <div class="campo">
+                    <label for="data_compra">Data da Compra</label>
+                    <input type="date" id="data_compra"
+                           name="data_compra"
+                           value="{{ dados.get('data_compra') or '' }}">
+                </div>
+
+                <div class="campo">
+                    <label for="local">Local / Loja</label>
+                    <input type="text" id="local"
+                           name="local"
+                           value="{{ dados.get('local') or '' }}">
+                </div>
+
+                <div class="campo">
+                    <label for="acessorio">Acessório</label>
+                    <input type="text" id="acessorio"
+                           name="acessorio"
+                           value="{{ dados.get('acessorio') or '' }}">
+                </div>
+
+                <div class="campo">
+                    <label for="prazo_garantias">
+                        Prazo de Garantias
+                    </label>
+                    <input type="text" id="prazo_garantias"
+                           name="prazo_garantias"
+                           value="{{ dados.get('prazo_garantias') or '' }}">
+                </div>
+
+            </div>
+        </section>
+
+        <section class="secao-form">
+            <h2>2. Informações da Compra</h2>
+
+            <div class="campo">
+                <label for="historico_compra">
+                    Histórico de Compra — Valor Total (R$)
+                </label>
+                <input type="number"
+                       id="historico_compra"
+                       name="historico_compra"
+                       min="0"
+                       step="0.01"
+                       value="{{ dados.get('historico_compra') or '' }}">
+            </div>
+
+            <div class="campo">
+                <label for="produtos_trocados">
+                    Produtos Trocados
+                </label>
+                <textarea id="produtos_trocados"
+                          name="produtos_trocados"
+                          rows="4">{{ dados.get('produtos_trocados') or '' }}</textarea>
+            </div>
+        </section>
+
+        <section class="secao-form">
+            <h2>3. Descrição da Atipicidade</h2>
+
+            <div class="campo">
+                <label for="situacao">
+                    Situação — Relato da Atipicidade
+                </label>
+                <textarea id="situacao"
+                          name="situacao"
+                          rows="6">{{ dados.get('situacao') or '' }}</textarea>
+            </div>
+        </section>
+
+        <section class="secao-form">
+            <h2>4. Acompanhamento e Resolução</h2>
+
+            <div class="campos-grid">
+
+                <div class="campo">
+                    <label for="progresso">Progresso *</label>
+                    <select id="progresso"
+                            name="progresso" required>
+                        {% for opcao in [
+                            'Aberta',
+                            'Aguardando loja',
+                            'Finalizado'
+                        ] %}
+                        <option value="{{ opcao }}"
+                            {% if dados.get('progresso') == opcao %}
+                                selected
+                            {% endif %}>
+                            {{ opcao }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="desfecho">
+                        Desfecho do Atendimento
+                    </label>
+                    <select id="desfecho" name="desfecho">
+                        {% for valor, descricao in [
+                            ('Pendente', 'Pendente de decisão'),
+                            ('Troca', 'Troca realizada'),
+                            ('Estorno', 'Estorno realizado'),
+                            ('Negado', 'Solicitação negada')
+                        ] %}
+                        <option value="{{ valor }}"
+                            {% if dados.get('desfecho') == valor %}
+                                selected
+                            {% endif %}>
+                            {{ descricao }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="campo">
+                <label for="resolutiva_final">
+                    Resolutiva Final
+                </label>
+                <textarea id="resolutiva_final"
+                          name="resolutiva_final"
+                          rows="5">{{ dados.get('resolutiva_final') or '' }}</textarea>
+            </div>
+        </section>
+
+        <div class="acoes-form">
+            <a class="botao-cancelar"
+               href="{{ url_for('detalhes_atipicidade',
+                                atipicidade_id=atipicidade_id) }}">
+                Cancelar
+            </a>
+
+            <button class="botao-salvar" type="submit">
+                Salvar Alterações
+            </button>
+        </div>
+
+    </form>
+
+</main>
+</body>
+</html>
