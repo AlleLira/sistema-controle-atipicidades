@@ -169,6 +169,27 @@ def validar_dados(dados):
     return None
 
 
+def validar_data_finalizacao(dados, data_finalizacao):
+    if dados["progresso"] != "Finalizado":
+        return None, None
+
+    if not data_finalizacao:
+        return None, None
+
+    try:
+        encerramento = date.fromisoformat(data_finalizacao)
+        abertura = date.fromisoformat(dados["data_atipicidade"])
+    except (ValueError, TypeError):
+        return None, "Informe uma data de finalização válida."
+
+    if encerramento < abertura:
+        return None, "A finalização não pode ser anterior à atipicidade."
+    if encerramento > date.today():
+        return None, "A finalização não pode estar no futuro."
+
+    return encerramento.isoformat() + " 12:00:00", None
+
+
 def buscar_atipicidade(conexao, identificador):
     registro = conexao.execute(
         "SELECT * FROM atipicidades WHERE id = ?",
@@ -220,19 +241,22 @@ def nova_atipicidade():
         dados = ler_formulario()
         devolutiva = request.form.get("devolutiva", "").strip()
         erro = validar_dados(dados)
+        data_finalizacao = request.form.get("data_finalizacao", "").strip()
+        data_historica, erro_data = validar_data_finalizacao(dados, data_finalizacao) if not erro else (None, None)
+        erro = erro or erro_data
 
         if erro:
             flash(erro, "erro")
             return render_template(
                 "nova_atipicidade.html",
                 hoje=date.today().isoformat(),
-                dados={**dados, "devolutiva": devolutiva}
+                dados={**dados, "devolutiva": devolutiva, "data_finalizacao": data_finalizacao}
             ), 400
 
         finalizado_em = None
 
         if dados["progresso"] == "Finalizado":
-            finalizado_em = agora_utc()
+            finalizado_em = data_historica or agora_utc()
 
         with conectar() as conexao:
             cursor = conexao.execute(
@@ -424,13 +448,16 @@ def editar_atipicidade(atipicidade_id):
     if request.method == "POST":
         dados = ler_formulario()
         erro = validar_dados(dados)
+        data_finalizacao = request.form.get("data_finalizacao", "").strip()
+        data_historica, erro_data = validar_data_finalizacao(dados, data_finalizacao) if not erro else (None, None)
+        erro = erro or erro_data
 
         if erro:
             flash(erro, "erro")
             return render_template(
                 "editar_atipicidade.html",
                 atipicidade_id=atipicidade_id,
-                dados=dados
+                dados={**dados, "data_finalizacao": data_finalizacao}
             ), 400
 
         alteracoes = []
@@ -456,7 +483,17 @@ def editar_atipicidade(atipicidade_id):
                     str(novo)
                 ))
 
-        if not alteracoes:
+        data_anterior = (
+            str(dados_atuais["finalizado_em"])[:10]
+            if dados_atuais["progresso"] == "Finalizado" and dados_atuais["finalizado_em"]
+            else ""
+        )
+        alterou_finalizacao = (
+            dados["progresso"] == "Finalizado"
+            and bool(data_finalizacao)
+            and data_finalizacao != data_anterior
+        )
+        if not alteracoes and not alterou_finalizacao:
             flash(
                 "Nenhuma alteração identificada.",
                 "sucesso"
@@ -473,7 +510,9 @@ def editar_atipicidade(atipicidade_id):
 
         if dados["progresso"] == "Finalizado":
             if dados_atuais["progresso"] != "Finalizado":
-                finalizado_em = momento
+                finalizado_em = data_historica or momento
+            elif data_historica:
+                finalizado_em = data_historica
         else:
             finalizado_em = None
 
@@ -499,6 +538,18 @@ def editar_atipicidade(atipicidade_id):
                     atipicidade_id
                 ]
             )
+
+            if alterou_finalizacao:
+                conexao.execute(
+                    """
+                    INSERT INTO historico_edicoes (
+                        atipicidade_id, campo, valor_anterior,
+                        valor_novo, alterado_em
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (atipicidade_id, "finalizado_em", data_anterior,
+                     data_finalizacao, momento)
+                )
 
             for campo, anterior, novo in alteracoes:
                 conexao.execute(
@@ -536,7 +587,7 @@ def editar_atipicidade(atipicidade_id):
     return render_template(
         "editar_atipicidade.html",
         atipicidade_id=atipicidade_id,
-        dados=dados_atuais
+        dados={**dados_atuais, "data_finalizacao": str(dados_atuais["finalizado_em"] or "")[:10]}
     )
 
 
