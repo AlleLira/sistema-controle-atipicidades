@@ -593,6 +593,36 @@ window.addEventListener("load", function() {
     }
 
 
+
+    // Rótulos permanentes, sem dependências adicionais.
+    const rotulosVisiveis = {
+        id: "rotulosVisiveis",
+        afterDatasetsDraw(chart) {
+            if (chart.config.type === "doughnut") return;
+            const {ctx} = chart;
+            ctx.save();
+            ctx.font = "bold 12px Arial";
+            ctx.fillStyle = "#3d3352";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                meta.data.forEach((element, index) => {
+                    const valor = Number(dataset.data[index]);
+                    if (!Number.isFinite(valor)) return;
+                    const horizontal = chart.options.indexAxis === "y";
+                    ctx.textAlign = horizontal ? "left" : "center";
+                    ctx.textBaseline = horizontal ? "middle" : "bottom";
+                    ctx.fillText(valor.toLocaleString("pt-BR"),
+                        horizontal ? element.x + 7 : element.x,
+                        horizontal ? element.y : element.y - 7);
+                });
+            });
+            ctx.restore();
+        }
+    };
+    Chart.register(rotulosVisiveis);
+
     const cores = [
         "#8b72cb",
         "#b6a3e3",
@@ -620,7 +650,8 @@ window.addEventListener("load", function() {
                         label: "Atipicidades",
                         data: valores,
                         backgroundColor: "#8b72cb",
-                        borderRadius: 6
+                        borderRadius: 6,
+                        maxBarThickness: 44
                     }]
                 },
 
@@ -635,7 +666,8 @@ window.addEventListener("load", function() {
                     plugins: {
                         legend: {
                             display: false
-                        }
+                        },
+                        tooltip: {enabled: true}
                     },
 
                     scales: horizontal
@@ -644,7 +676,8 @@ window.addEventListener("load", function() {
                                 beginAtZero: true,
                                 ticks: {
                                     precision: 0
-                                }
+                                },
+                                grace: "18%"
                             }
                         }
                         : {
@@ -703,12 +736,10 @@ window.addEventListener("load", function() {
             type: "doughnut",
 
             data: {
-                labels: [
-                    "Troca",
-                    "Estorno",
-                    "Negado",
-                    "Pendente"
-                ],
+                labels: ["Troca", "Estorno", "Negado", "Pendente"].map((nome, i) => {
+                    const total = desfechos.reduce((s, n) => s + n, 0);
+                    return `${nome}: ${desfechos[i]} (${total ? (100 * desfechos[i] / total).toFixed(1).replace(".", ",") : "0"}%)`;
+                }),
 
                 datasets: [{
                     data: desfechos,
