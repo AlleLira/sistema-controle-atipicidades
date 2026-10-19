@@ -179,6 +179,13 @@
                 </div>
 
                 <div class="campo">
+                    <label for="data_finalizacao">Data de Finalização</label>
+                    <input type="date" id="data_finalizacao" name="data_finalizacao"
+                           value="{{ dados.get('data_finalizacao') or '' }}">
+                    <small>Para casos finalizados. Se ficar em branco, usa a data de hoje ao finalizar.</small>
+                </div>
+
+                <div class="campo">
                     <label for="desfecho">
                         Desfecho do Atendimento
                     </label>
