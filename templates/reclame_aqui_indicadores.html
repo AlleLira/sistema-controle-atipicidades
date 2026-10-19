@@ -291,6 +291,36 @@ document.addEventListener("DOMContentLoaded", function () {
     const mesesLabels = {{ meses_labels | tojson }};
     const mesesValores = {{ meses_valores | tojson }};
 
+
+    // Rótulos permanentes, sem dependências adicionais.
+    const rotulosVisiveis = {
+        id: "rotulosVisiveis",
+        afterDatasetsDraw(chart) {
+            if (chart.config.type === "doughnut") return;
+            const {ctx} = chart;
+            ctx.save();
+            ctx.font = "bold 12px Arial";
+            ctx.fillStyle = "#3d3352";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                meta.data.forEach((element, index) => {
+                    const valor = Number(dataset.data[index]);
+                    if (!Number.isFinite(valor)) return;
+                    const horizontal = chart.options.indexAxis === "y";
+                    ctx.textAlign = horizontal ? "left" : "center";
+                    ctx.textBaseline = horizontal ? "middle" : "bottom";
+                    ctx.fillText(valor.toLocaleString("pt-BR"),
+                        horizontal ? element.x + 7 : element.x,
+                        horizontal ? element.y : element.y - 7);
+                });
+            });
+            ctx.restore();
+        }
+    };
+    Chart.register(rotulosVisiveis);
+
     const cores = [
         "#8b6bc5",
         "#b49bdc",
@@ -310,7 +340,10 @@ document.addEventListener("DOMContentLoaded", function () {
     new Chart(statusContexto, {
         type: "doughnut",
         data: {
-            labels: statusLabels,
+            labels: statusLabels.map((nome, i) => {
+                const total = statusValores.reduce((s, n) => s + n, 0);
+                return `${nome}: ${statusValores[i]} (${total ? (100 * statusValores[i] / total).toFixed(1).replace(".", ",") : "0"}%)`;
+            }),
             datasets: [{
                 data: statusValores,
                 backgroundColor: cores,
@@ -364,6 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     ticks: {
                         precision: 0
                     },
+                    grace: "18%",
                     grid: {
                         color: "#eee9f5"
                     }
